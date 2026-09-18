@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lccdd>
+  <materials>
+
+    <comment>
+      Material definitions that are specific to the LEAP setup, translated from
+      Materials::DefineMaterials() in leap_sims/src/Materials.cc.
+
+      Materials that are already provided by DD4hep are *not* repeated here:
+        Air, Vacuum, PEEK          -> DDDetectors/compact/materials.xml
+        Aluminum, Lead, ...        -> DDDetectors/compact/elements.xml
+        SiliconOxide, SodiumOxide  -> DDDetectors/compact/materials.xml
+      Note that the DD4hep `Vacuum` is modelled as very thin air and not as the
+      Geant4 `G4_Galactic` used by the original.
+    </comment>
+
+    <comment>Oxides needed as ingredients of the lead glass below</comment>
+
+    <material name="LeadOxide">
+      <D type="density" value="9.53" unit="g/cm3"/>
+      <composite n="1" ref="Pb"/>
+      <composite n="1" ref="O"/>
+    </material>
+
+    <material name="RedLead">
+      <D type="density" value="8.3" unit="g/cm3"/>
+      <composite n="3" ref="Pb"/>
+      <composite n="4" ref="O"/>
+    </material>
+
+    <material name="PotassiumOxide">
+      <D type="density" value="2.35" unit="g/cm3"/>
+      <composite n="2" ref="K"/>
+      <composite n="1" ref="O"/>
+    </material>
+
+    <material name="ArsenicTrioxide">
+      <D type="density" value="3.74" unit="g/cm3"/>
+      <composite n="2" ref="As"/>
+      <composite n="3" ref="O"/>
+    </material>
+
+    <comment>
+      Lead glass TF1, the crystal material used for the LEAP calorimeter.
+      Composition as in Materials.cc.
+    </comment>
+    <material name="TF1">
+      <D type="density" value="3.860" unit="g/cm3"/>
+      <fraction n="0.512" ref="LeadOxide"/>
+      <fraction n="0.413" ref="SiliconOxide"/>
+      <fraction n="0.035" ref="PotassiumOxide"/>
+      <fraction n="0.035" ref="SodiumOxide"/>
+      <fraction n="0.005" ref="ArsenicTrioxide"/>
+    </material>
+
+    <comment>
+      Lead glass TF101, the alternative crystal material. The original quotes
+      0.4153 for SiO2, which does not add up to 1, and uses 0.4157 instead.
+    </comment>
+    <material name="TF101">
+      <D type="density" value="3.860" unit="g/cm3"/>
+      <fraction n="0.5123" ref="RedLead"/>
+      <fraction n="0.4157" ref="SiliconOxide"/>
+      <fraction n="0.0700" ref="PotassiumOxide"/>
+      <fraction n="0.0020" ref="Cerium"/>
+    </material>
+
+  </materials>
+</lccdd>
