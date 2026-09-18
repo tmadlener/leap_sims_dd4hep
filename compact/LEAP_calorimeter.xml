@@ -14,26 +14,20 @@
       here; see src/LEAPCalorimeter_geo.cpp for the list of things that are
       still missing (3x3 crystal array, PEEK front plate, aluminium
       top/bottom plates, tracker-like virtual detector planes).
-
-      The `LEAP_Calorimeter` detector constructor used below lives in the
-      libLEAPSimsGeo.so plugin, which DD4hep finds via LD_LIBRARY_PATH:
-
-        cmake -S . -B build
-        cmake --build build -- -j4
-        export LD_LIBRARY_PATH=$PWD/build/lib:$LD_LIBRARY_PATH
-        ddsim --compactFile compact/LEAP_calorimeter.xml --runType vis
     </comment>
   </info>
 
   <includes>
     <gdmlFile ref="${DD4hepINSTALL}/DDDetectors/compact/elements.xml"/>
     <gdmlFile ref="${DD4hepINSTALL}/DDDetectors/compact/materials.xml"/>
+    <comment>LEAP specific materials (lead glass, ...).</comment>
+    <file ref="LEAP_materials.xml"/>
   </includes>
 
-  <comment>LEAP specific materials (lead glass, ...)</comment>
-  <include ref="LEAP_materials.xml"/>
-
   <define>
+    <comment>The DetType_* constants used in the type_flag below</comment>
+    <include ref="${DD4hepINSTALL}/DDDetectors/compact/detector_types.xml"/>
+
     <comment>
       The world. The original uses a 4 m half side box of air, and DD4hep
       fills the world with air as well.
@@ -42,6 +36,15 @@
     <constant name="world_x" value="world_side"/>
     <constant name="world_y" value="world_side"/>
     <constant name="world_z" value="world_side"/>
+
+    <comment>
+      Extent of the "tracker region". ddsim's default UserParticleHandler
+      needs these two constants for the MC truth linking, so they have to
+      exist even though there is no tracker in this setup yet. Covering the
+      whole world keeps every particle in the MC truth relation.
+    </comment>
+    <constant name="tracker_region_rmax" value="world_side"/>
+    <constant name="tracker_region_zmax" value="world_side"/>
 
     <comment>
       Calorimeter cell parameters, cf. Calorimeter::ConstructCalo(). These are

@@ -91,6 +91,11 @@ static Ref_t create_detector(Detector& description, xml_h handle, SensitiveDetec
   dim.cell_xy = dim.wrap_xy;
   dim.cell_z = dim.wrap_z + dim.front_thickness + dim.back_thickness;
 
+  // NOTE: xml_det_t::materialStr() expects a <material name="..."/> *child*
+  // element, while all the sub-components below use a material *attribute*.
+  // Read the attribute here as well to keep the compact file consistent.
+  const std::string envelope_material = x_det.attr<std::string>(_U(material));
+
   const int n_cell_x = x_grid.attr<int>(_Unicode(ncell_x));
   const int n_cell_y = x_grid.attr<int>(_Unicode(ncell_y));
   if (n_cell_x < 1 || n_cell_y < 1) {
@@ -109,7 +114,7 @@ static Ref_t create_detector(Detector& description, xml_h handle, SensitiveDetec
   }
 
   Box mother_box(n_cell_x * dim.cell_xy / 2., n_cell_y * dim.cell_xy / 2., dim.cell_z / 2.);
-  Volume mother_vol(det_name, mother_box, description.material(x_det.materialStr()));
+  Volume mother_vol(det_name, mother_box, description.material(envelope_material));
   mother_vol.setVisAttributes(description, x_det.visStr());
 
   //---------------------------------------------------------------------
@@ -121,7 +126,7 @@ static Ref_t create_detector(Detector& description, xml_h handle, SensitiveDetec
       const std::string cell_name = det_name + _toString(ix, "_cell%d") + _toString(iy, "_%d");
 
       Box cell_box(dim.cell_xy / 2., dim.cell_xy / 2., dim.cell_z / 2.);
-      Volume cell_vol(cell_name, cell_box, description.material(x_det.materialStr()));
+      Volume cell_vol(cell_name, cell_box, description.material(envelope_material));
       cell_vol.setVisAttributes(description, x_det.visStr());
 
       //-----------------------------------------------------------------

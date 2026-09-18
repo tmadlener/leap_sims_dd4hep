@@ -46,8 +46,10 @@ source install/bin/thisLEAP.sh
 
 **This only has to be done once** (and everytime you enter a new shell).
 
+### Visualizing the geometry
+
 Afterwards it should be possible to visualize the geometry via
 
 ```bash
-ddsim --compactFile compact/LEAP_calorimeter.xml --runType vis
+ddsim --compactFile compact/LEAP_calorimeter.xml --runType qt --macroFile vis.mac
 ```
