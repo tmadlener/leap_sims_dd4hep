@@ -9,11 +9,10 @@
         status="development"
         version="0.1">
     <comment>
-      Partial DD4hep translation of the LEAP lead glass calorimeter. Only the
-      calorimeter mother volume and a single calorimeter cell are described
-      here; see src/LEAPCalorimeter_geo.cpp for the list of things that are
-      still missing (3x3 crystal array, PEEK front plate, aluminium
-      top/bottom plates, tracker-like virtual detector planes).
+      Minimal DD4hep translation of the LEAP lead glass calorimeter: one single
+      cell, i.e. a lead glass crystal in an air gap in an aluminium wrapping,
+      and nothing else. See src/LEAPCalorimeter_geo.cpp for the list of things
+      that are meant to be added on top of this one step at a time.
     </comment>
   </info>
 
@@ -48,88 +47,56 @@
 
     <comment>
       Calorimeter cell parameters, cf. Calorimeter::ConstructCalo(). These are
-      the *primitive* numbers only; all derived sizes (air gap, wrapping and
-      cell envelope dimensions) are computed by the detector constructor.
+      the *primitive* numbers only; the air gap and wrapping dimensions are
+      derived from them by the detector constructor.
     </comment>
     <constant name="LEAPCal_crystal_xy"       value="3.8*cm"/>
     <constant name="LEAPCal_crystal_length"   value="45*cm"/>
     <constant name="LEAPCal_airgap_thickness" value="0.001*mm"/>
     <constant name="LEAPCal_wrap_thickness"   value="0.01*mm"/>
-    <comment>Thickness of the virtual detector planes in front of/behind a cell</comment>
-    <constant name="LEAPCal_det_thickness"    value="1.0*mm"/>
 
     <comment>
-      Position of the calorimeter mother volume in the world. The original
-      places it at magThick + [Calorimeter] dist2Pol + caloLength/2 behind the
-      solenoid, which is not part of this translation yet. The value below is
-      dist2Pol = 91 mm plus half the cell length, i.e. the calorimeter front
-      face sits 91 mm downstream of the origin.
+      Position of the cell in the world. The original places the calorimeter
+      [Calorimeter] dist2Pol behind the solenoid, which does not exist in this
+      translation yet, so the value below is arbitrary: it simply puts the
+      front face of the cell at z = 0.
     </comment>
-    <constant name="LEAPCal_dist2Pol" value="91*mm"/>
     <constant name="LEAPCal_length"
-              value="LEAPCal_crystal_length + LEAPCal_airgap_thickness + LEAPCal_wrap_thickness + 2*LEAPCal_det_thickness"/>
-    <constant name="LEAPCal_z" value="LEAPCal_dist2Pol + LEAPCal_length/2"/>
+              value="LEAPCal_crystal_length + LEAPCal_airgap_thickness + LEAPCal_wrap_thickness"/>
+    <constant name="LEAPCal_z" value="LEAPCal_length/2"/>
   </define>
 
   <display>
-    <comment>The mother and cell envelopes are virtual volumes -> invisible</comment>
-    <vis name="LEAPCalEnvelopeVis" visible="false" showDaughters="true"/>
     <comment>Colours as in the G4VisAttributes of the original</comment>
     <vis name="LEAPCalWrapVis"    alpha="1.0" r="0.467" g="0.533" b="0.600"
          visible="true" showDaughters="true" drawingStyle="wireframe"/>
     <vis name="LEAPCalAirGapVis"  visible="false" showDaughters="true"/>
     <vis name="LEAPCalCrystalVis" alpha="1.0" r="0.878" g="1.000" b="1.000"
          visible="true" showDaughters="true" drawingStyle="solid"/>
-    <vis name="LEAPCalDetVis"     alpha="1.0" r="0.949" g="0.557" b="0.000"
-         visible="true" showDaughters="true" drawingStyle="solid"/>
   </display>
 
   <detectors>
-    <detector id="1" name="LEAPCal" type="LEAP_Calorimeter"
-              material="Air" vis="LEAPCalEnvelopeVis" readout="LEAPCalHits">
+    <detector id="1" name="LEAPCal" type="LEAP_Calorimeter" readout="LEAPCalHits">
       <type_flags type=" DetType_CALORIMETER + DetType_ELECTROMAGNETIC "/>
 
-      <comment>
-        Number of cells in x and y. The full calorimeter is a 3x3 array
-        ([Calorimeter] nCrystals = 9); only a single cell is translated so far.
-      </comment>
-      <dimensions ncell_x="1" ncell_y="1"/>
-
       <position x="0" y="0" z="LEAPCal_z"/>
-      <comment>[Calorimeter] xRot / yRot of the original</comment>
-      <rotation x="0" y="0" z="0"/>
-
-      <comment>The lead glass crystal. caloMaterial = TF1 in the original config.ini</comment>
-      <crystal x="LEAPCal_crystal_xy" y="LEAPCal_crystal_xy" z="LEAPCal_crystal_length"
-               material="TF1" sensitive="true" vis="LEAPCalCrystalVis"/>
-
-      <comment>Air gap between crystal and wrapping, on the front face and the sides</comment>
-      <airgap thickness="LEAPCal_airgap_thickness" material="Air" vis="LEAPCalAirGapVis"/>
 
       <comment>Reflective aluminium foil wrapped around the crystal</comment>
       <wrapping thickness="LEAPCal_wrap_thickness" material="Aluminum" vis="LEAPCalWrapVis"/>
 
-      <comment>
-        Virtual scoring planes in front of and behind the cell. These are
-        passive for now, see the comment in the detector constructor: a
-        calorimeter readout cannot produce hits in vacuum, so they need to
-        become their own `tracker` type subdetector.
-      </comment>
-      <front_detector thickness="LEAPCal_det_thickness" material="Vacuum"
-                      sensitive="false" vis="LEAPCalDetVis"/>
-      <back_detector  thickness="LEAPCal_det_thickness" material="Vacuum"
-                      sensitive="false" vis="LEAPCalDetVis"/>
+      <comment>Air gap between crystal and wrapping, on the front face and the sides</comment>
+      <airgap thickness="LEAPCal_airgap_thickness" material="Air" vis="LEAPCalAirGapVis"/>
+
+      <comment>The lead glass crystal. caloMaterial = TF1 in the original config.ini</comment>
+      <crystal x="LEAPCal_crystal_xy" y="LEAPCal_crystal_xy" z="LEAPCal_crystal_length"
+               material="TF1" sensitive="true" vis="LEAPCalCrystalVis"/>
     </detector>
   </detectors>
 
   <readouts>
     <readout name="LEAPCalHits">
-      <comment>
-        One cell id per crystal, no sub-segmentation. `slice` distinguishes the
-        front virtual detector (0), the crystal (1) and the back virtual
-        detector (2).
-      </comment>
-      <id>system:8,cell_x:4,cell_y:4,slice:4</id>
+      <comment>A single crystal, so there is nothing to encode but the system id</comment>
+      <id>system:8</id>
     </readout>
   </readouts>
 
