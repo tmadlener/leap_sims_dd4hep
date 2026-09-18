@@ -29,8 +29,8 @@
 /vis/viewer/set/viewpointThetaPhi 75 25
 /vis/viewer/zoomTo 1
 
-# Coordinate axes at the origin, i.e. at the front face of the solenoid that
-# is not part of the translation yet. 10 cm long.
+# Coordinate axes at the origin, which is where the front face of the cell
+# sits for the moment. 10 cm long.
 /vis/scene/add/axes 0 0 0 10 cm
 
 # Accumulate the trajectories of all events of a run and colour them by charge

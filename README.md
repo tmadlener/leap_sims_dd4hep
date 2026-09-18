@@ -53,3 +53,41 @@ Afterwards it should be possible to visualize the geometry via
 ```bash
 ddsim --compactFile compact/LEAP_calorimeter.xml --runType qt --macroFile vis.mac
 ```
+
+### Shooting electrons into the cell
+
+The particle gun has to be enabled on the command line. Without any generator
+`/run/beamOn` aborts with
+`ObjectExtensions::extension: The object has no extension of type ...`:
+
+```bash
+ddsim --compactFile compact/LEAP_calorimeter.xml --runType qt --macroFile vis.mac \
+    --enableGun --gun.particle e- --gun.energy "1*GeV" \
+    --gun.direction "0 0 1" --gun.position "0 0 -10*cm"
+```
+
+The gun fires from the origin by default, which is exactly the front face of
+the crystal. Starting 10 cm upstream instead makes the incoming track visible
+as well.
+
+Then, in the `Session:` prompt of the Qt window:
+
+```
+/run/beamOn 5
+```
+
+`vis.mac` puts the viewer into `accumulate` mode, so the five showers pile up
+in the same picture. Use `/vis/scene/endOfEventAction refresh` to look at one
+event at a time.
+
+The gun can also be reconfigured without restarting ddsim. Note that these
+properties are in Geant4 units, i.e. mm and MeV, and do not accept the
+`1*GeV` syntax of the command line options:
+
+```
+/ddg4/Gun/particle mu-
+/ddg4/Gun/energy 500
+/ddg4/Gun/position (0,0,-200)
+/ddg4/Gun/show
+/run/beamOn 1
+```
